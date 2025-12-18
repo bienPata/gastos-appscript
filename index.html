@@ -1,0 +1,562 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <base target="_top">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  
+  <style>
+    /* 1. Definición de Variables de Tema */
+    :root {
+      --bg-primary: #f9fafb;
+      --bg-secondary: #ffffff;
+      --text-color: #1f2937;
+      --border-color: #e5e7eb;
+      --shadow-color: rgba(59, 130, 246, 0.2);
+      --input-text-light: #000000; /* NUEVA VARIABLE: Texto negro para inputs en Light Mode */
+    }
+    
+    .dark-mode {
+      --bg-primary: #121212;
+      --bg-secondary: #1e1e1e;
+      --text-color: #f3f4f6;
+      --border-color: #374151;
+      --shadow-color: rgba(59, 130, 246, 0.4);
+      --input-text-light: #f3f4f6; /* Se ignora, pero se define */
+    }
+
+    /* Aplicación de Variables y No-Scroll Layout */
+    *, *::before, *::after { box-sizing: border-box; }
+    html, body {
+      margin: 0; padding: 0; width: 100%; 
+      font-family: 'Inter', sans-serif;
+      /* Eliminación de Scroll Vertical */
+      height: 100vh;
+      overflow-y: hidden; 
+      background: var(--bg-primary);
+      color: var(--text-color);
+      transition: background-color 0.3s, color 0.3s;
+    }
+    
+    .app-container {
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      padding-top: env(safe-area-inset-top);
+      padding-bottom: env(safe-area-inset-bottom);
+    }
+
+    .form-content {
+      /* Permite que el contenido del formulario ocupe el espacio restante */
+      flex-grow: 1; 
+      overflow-y: auto; /* Permite scroll interno SOLO si es necesario */
+      padding-bottom: 7rem; /* Espacio para el footer fijo */
+    }
+
+    /* --- ESTILOS COMPARTIDOS --- */
+    .input-base {
+        width: 100%; padding: 0.75rem 1rem; text-base; rounded-lg;
+        border: 1px solid var(--border-color);
+        background: var(--bg-secondary);
+        transition: all 0.2s;
+        /* APLICACIÓN DE LA CORRECCIÓN DE CONTRASTE */
+        color: var(--input-text-light); /* En Light Mode es negro, en Dark Mode es blanco/gris claro */
+    }
+    
+    .dark-mode .input-base {
+        color: var(--text-color); /* En Dark Mode, usamos el color normal (claro) */
+    }
+
+    .input-base:focus {
+        border-color: #3b82f6; 
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.5); 
+        outline: none;
+    }
+    
+    /* 2. Monto Minimalista */
+    .amount-wrapper {
+        display: flex;
+        justify-content: center;
+        align-items: baseline; 
+        padding-top: 1rem;
+    }
+
+    #amount {
+      font-size: clamp(3rem, 15vw, 4.5rem) !important; 
+      font-weight: 700 !important;
+      color: #3b82f6; 
+      text-align: center;
+      padding: 0 !important; border: none !important;
+      background: transparent !important; 
+      box-shadow: none !important;
+      max-width: 100%; 
+      outline: none !important;
+      border: none !important;
+    }
+    .currency-symbol {
+        font-size: clamp(2rem, 10vw, 3rem);
+        font-weight: 700;
+        color: #3b82f6;
+        margin-right: 5px; 
+    }
+    
+    /* Reglas para eliminar las flechas (spin buttons) del input type=number */
+    input::-webkit-outer-spin-button, input::-webkit-inner-spin-button {
+        -webkit-appearance: none; margin: 0;
+    }
+    input[type=number] { -moz-appearance: textfield; } /* Firefox */
+
+    /* 3. Estilos del Toggle Switch (Tipo de Movimiento) */
+    .toggle-switch-container {
+        display: flex; gap: 0; border-radius: 9999px;
+        background: var(--border-color);
+        padding: 4px;
+    }
+    .toggle-switch-btn {
+        flex-grow: 1; padding: 0.5rem; text-align: center; font-weight: 600;
+        border-radius: 9999px; cursor: pointer;
+        transition: all 0.2s ease;
+        color: var(--text-color);
+        background: transparent;
+    }
+    .toggle-switch-btn.selected {
+        background-color: #3b82f6;
+        color: white;
+        box-shadow: 0 2px 4px var(--shadow-color);
+    }
+    
+    /* 4. Estilos de Carrusel Minimizados */
+    .scroll-container {
+      display: flex;
+      overflow-x: auto; 
+      gap: 0.5rem; /* Espaciado reducido */
+      padding: 0.25rem 0; /* Padding vertical reducido */
+      -webkit-overflow-scrolling: touch; 
+      scrollbar-width: none; 
+      -ms-overflow-style: none;
+    }
+    .scroll-container::-webkit-scrollbar { display: none; }
+    
+    .scroll-button {
+      flex: 0 0 auto; 
+      white-space: nowrap;
+      padding: 0.5rem 1rem; /* Padding reducido */
+      font-size: 0.85rem; /* Tamaño de fuente reducido */
+      font-weight: 500;
+      border-radius: 9999px; 
+      border: 1px solid var(--border-color);
+      background: var(--bg-secondary);
+      color: var(--text-color);
+      transition: all 0.2s ease;
+      cursor: pointer;
+    }
+    .scroll-button.selected {
+      background-color: #3b82f6 !important; 
+      color: white !important;
+      border-color: #3b82f6 !important; 
+      box-shadow: 0 4px 6px -1px var(--shadow-color), 0 2px 4px -2px var(--shadow-color) !important;
+    }
+
+    /* Carrusel de Sugerencias */
+    .suggestion-btn {
+      flex: 0 0 auto; white-space: nowrap;
+      padding: 0.4rem 0.8rem; font-size: 0.8rem; font-weight: 500;
+      border-radius: 9999px; background: #dbeafe; color: #1d4ed8;
+      border: 1px solid #93c5fd; transition: all 0.2s;
+    }
+    
+    /* 5. Footer Fijo */
+    .fixed-footer {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        padding: 1.5rem 1.25rem;
+        background: var(--bg-primary);
+        box-shadow: 0 -4px 10px rgba(0,0,0,0.1);
+        z-index: 1000;
+        padding-bottom: calc(1.5rem + env(safe-area-inset-bottom));
+    }
+
+    /* Overlay de Carga */
+    #loading-overlay {
+      position: fixed; inset: 0; background: var(--bg-secondary);
+      opacity: 0.98; z-index: 9999; 
+      display: none; 
+      align-items: center; justify-content: center; flex-direction: column;
+      padding: 2rem; text-align: center;
+    }
+    .spinner {
+      width: 60px; height: 60px; border: 6px solid var(--border-color);
+      border-top-color: #3b82f6; border-radius: 50%;
+      animation: spin 1s ease-in-out infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+  </style>
+</head>
+
+<body>
+  <div class="app-container">
+
+    <header class="flex justify-between items-center p-4">
+        <button id="themeToggle" type="button" class="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors">
+            <svg id="sunIcon" class="w-6 h-6 text-yellow-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path>
+            </svg>
+            <svg id="moonIcon" class="w-6 h-6 text-gray-500 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path>
+            </svg>
+        </button>
+    </header>
+
+    <div class="form-content">
+        <div class="max-w-md mx-auto px-5 pt-2 pb-5"> 
+
+            <form id="expenseForm">
+                
+                <div class="amount-wrapper">
+                    <span class="currency-symbol">$</span>
+                    <input type="number" id="amount" step="0.01" min="0.01" required placeholder="0.00"
+                        inputmode="decimal" value="" class="text-gray-900 dark:text-gray-200">
+                </div>
+
+                <div class="mt-4 mb-6">
+                    <div id="movementTypeGroup" class="toggle-switch-container">
+                        <button type="button" class="toggle-switch-btn selected" data-value="Compra">Gasto</button>
+                        <button type="button" class="toggle-switch-btn" data-value="Ingreso">Ingreso</button>
+                    </div>
+                    <input type="hidden" id="movementType" value="Compra" required>
+                </div>
+
+
+                <div class="space-y-2 mb-6">
+                    <label class="block text-sm font-semibold text-gray-700 dark:text-gray-400">Descripción</label>
+                    <input type="text" id="description" required maxlength="100" placeholder="Ej: Café, supermercado..."
+                        class="input-base">
+                    <div class="suggestions-scroll scroll-container" id="suggestions-container"></div>
+                </div>
+
+                <div class="space-y-2 mb-6">
+                    <label class="block text-sm font-semibold text-gray-700 dark:text-gray-400">Categoría</label>
+                    <div id="categoryGroup" class="scroll-container">
+                        <p class="text-sm text-gray-500 p-2">Cargando categorías...</p>
+                    </div>
+                    <input type="hidden" id="expenseType" required>
+                </div>
+
+                <div class="space-y-2">
+                    <label class="block text-sm font-semibold text-gray-700 dark:text-gray-400">Forma de Pago</label>
+                    <div id="paymentMethodGroup" class="scroll-container">
+                        <p class="text-sm text-gray-500 p-2">Cargando formas de pago...</p>
+                    </div>
+                    <input type="hidden" id="paymentMethod" required>
+                </div>
+
+            </form>
+        </div>
+    </div>
+
+    <div class="fixed-footer">
+        <button type="submit" form="expenseForm" id="submitButton"
+            class="w-full py-4 bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white font-bold text-lg rounded-xl shadow-xl transition-all duration-200 transform active:scale-98 focus:outline-none focus:ring-4 focus:ring-blue-300">
+            Registrar Gasto
+        </button>
+    </div>
+
+
+    <div id="loading-overlay">
+      <div id="loading-content" class="text-center">
+        <div class="spinner mx-auto"></div> 
+        <p class="mt-4 text-blue-600 font-bold text-xl">Enviando...</p>
+      </div>
+      <div id="success-content" class="hidden text-center">
+        <svg class="w-20 h-20 text-green-500 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+        </svg>
+        <p class="mt-4 text-green-600 font-bold text-xl">¡Listo!</p>
+      </div>
+    </div>
+  </div>
+
+<script>
+  // Obtención de elementos del DOM
+  const form = document.getElementById('expenseForm');
+  const overlay = document.getElementById('loading-overlay');
+  const submitButton = document.getElementById('submitButton');
+  const descriptionInput = document.getElementById('description');
+  const suggestionsContainer = document.getElementById('suggestions-container');
+  const loadingContent = document.getElementById('loading-content');
+  const successContent = document.getElementById('success-content');
+  const expenseTypeInput = document.getElementById('expenseType');
+  const paymentMethodInput = document.getElementById('paymentMethod');
+  const categoryGroup = document.getElementById('categoryGroup');
+  const paymentMethodGroup = document.getElementById('paymentMethodGroup');
+  const amountInput = document.getElementById('amount'); 
+  const movementTypeInput = document.getElementById('movementType'); 
+  const movementTypeGroup = document.getElementById('movementTypeGroup');
+  const themeToggle = document.getElementById('themeToggle');
+  const root = document.documentElement;
+
+  // --- LÓGICA DEL DARK/LIGHT MODE ---
+  function saveTheme(theme) {
+    localStorage.setItem('theme', theme);
+  }
+
+  function applyTheme(theme) {
+    if (theme === 'dark') {
+      root.classList.add('dark-mode');
+      document.getElementById('sunIcon').classList.add('hidden');
+      document.getElementById('moonIcon').classList.remove('hidden');
+    } else {
+      root.classList.remove('dark-mode');
+      document.getElementById('sunIcon').classList.remove('hidden');
+      document.getElementById('moonIcon').classList.add('hidden');
+    }
+    saveTheme(theme);
+  }
+
+  function toggleTheme() {
+    const currentTheme = root.classList.contains('dark-mode') ? 'dark' : 'light';
+    const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+    applyTheme(newTheme);
+  }
+
+  // --- LÓGICA DEL FORMULARIO ---
+
+  function hideLoading() {
+    overlay.style.display = 'none';
+    submitButton.disabled = false;
+    loadingContent.classList.remove('hidden');
+    successContent.classList.add('hidden');
+  }
+
+  function showSuccess(msg) {
+    loadingContent.classList.add('hidden');
+    successContent.classList.remove('hidden');
+    // Muestra el ícono de éxito por 0.5 segundos y luego limpia el formulario
+    setTimeout(() => {
+      clearForm();
+      hideLoading();
+    }, 500);
+  }
+
+  function showError(msg) {
+    overlay.style.display = 'flex';
+    loadingContent.classList.add('hidden');
+    // Reutilizamos el contenedor de éxito para el error
+    successContent.classList.remove('hidden'); 
+    successContent.innerHTML = `<svg class="w-20 h-20 text-red-500 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg><p class="mt-4 text-red-600 font-bold text-xl">${msg}</p>`;
+    
+    setTimeout(() => {
+        hideLoading();
+        // Restaurar el contenido original de éxito
+        successContent.innerHTML = `<svg class="w-20 h-20 text-green-500 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg><p class="mt-4 text-green-600 font-bold text-xl">¡Listo!</p>`;
+        submitButton.disabled = false;
+    }, 1500); // Se muestra el error por 1.5 segundos
+  }
+
+  // Limpia el formulario y restablece selecciones
+  function clearForm() {
+    form.reset();
+    
+    // Limpiar selecciones de Categoría y Forma de Pago
+    document.querySelectorAll('#categoryGroup .scroll-button.selected, #paymentMethodGroup .scroll-button.selected').forEach(btn => {
+      btn.classList.remove('selected');
+    });
+
+    expenseTypeInput.value = '';
+    paymentMethodInput.value = '';
+    amountInput.value = '';
+
+    // Restablecer el toggle de Movimiento a "Gasto" (Compra)
+    document.querySelectorAll('#movementTypeGroup .toggle-switch-btn').forEach(btn => {
+        btn.classList.remove('selected');
+        if (btn.dataset.value === 'Compra') {
+            btn.classList.add('selected');
+            movementTypeInput.value = 'Compra';
+        }
+    });
+
+    amountInput.focus();
+    loadCommonDescriptions();
+  }
+
+  // Maneja la selección de Categoría/Forma de Pago/Tipo de Movimiento
+  function handleSelection(e) {
+    const btn = e.target.closest('.scroll-button') || e.target.closest('.toggle-switch-btn');
+    if (!btn) return;
+
+    const group = btn.closest('.scroll-container') || btn.closest('.toggle-switch-container');
+    let input;
+    
+    if (group.id === 'movementTypeGroup') { 
+        input = movementTypeInput;
+    } else if (group.id === 'paymentMethodGroup') {
+        input = paymentMethodInput;
+    } else {
+        input = expenseTypeInput;
+    }
+
+    // Deseleccionar botones del mismo grupo
+    group.querySelectorAll('.scroll-button, .toggle-switch-btn').forEach(b => {
+      b.classList.remove('selected');
+    });
+
+    btn.classList.add('selected');
+    input.value = btn.dataset.value;
+
+    // Si selecciona Tipo de Movimiento, actualizar el texto del botón de envío
+    if (group.id === 'movementTypeGroup') {
+        submitButton.textContent = `Registrar ${input.value === 'Compra' ? 'Gasto' : 'Ingreso'}`;
+    }
+  }
+
+  // Maneja la selección de sugerencias de descripción
+  function handleSuggestion(e) {
+    const btn = e.target.closest('.suggestion-btn');
+    if (btn) {
+      descriptionInput.value = btn.dataset.value;
+      descriptionInput.focus();
+      // Opcional: mover el foco al siguiente campo crítico (Categoría) para velocidad
+      // categoryGroup.scrollIntoView({ behavior: 'smooth' }); 
+    }
+  }
+
+  // Maneja el envío del formulario
+  function handleSubmit(e) {
+    e.preventDefault();
+    const data = {
+      amount: amountInput.value,
+      description: descriptionInput.value.trim() || 'Sin Descripción',
+      movementType: movementTypeInput.value, 
+      expenseType: expenseTypeInput.value,
+      paymentMethod: paymentMethodInput.value
+    };
+
+    if (!data.expenseType || !data.paymentMethod) {
+      showError('Faltan datos: selecciona Categoría y Forma de Pago.');
+      return;
+    }
+
+    if (isNaN(parseFloat(data.amount)) || parseFloat(data.amount) <= 0) {
+        showError('Introduce un Monto válido.');
+        return;
+    }
+
+    overlay.style.display = 'flex';
+    submitButton.disabled = true;
+    loadingContent.classList.remove('hidden'); 
+
+    // Llamada al script del lado del servidor
+    google.script.run
+      .withSuccessHandler(onSuccess)
+      .withFailureHandler(onError)
+      .recordExpense(data);
+  }
+
+  // Rellena los botones de opciones (Categorías/Pagos)
+  function populateOptions(container, options, inputName) {
+    container.innerHTML = ''; 
+    (options || []).forEach(option => {
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.textContent = option;
+      btn.dataset.value = option;
+      btn.className = 'scroll-button';
+      container.appendChild(btn);
+    });
+    if (options.length === 0) {
+        container.innerHTML = `<p class="text-sm text-red-500 dark:text-red-400 p-2">Error: No se cargaron las opciones de ${inputName}.</p>`;
+    }
+  }
+
+  // Carga las Categorías
+  function loadCategories() {
+    google.script.run
+      .withSuccessHandler(options => populateOptions(categoryGroup, options, 'Categorías'))
+      .withFailureHandler(err => {
+          categoryGroup.innerHTML = '<p class="text-sm text-red-500 dark:text-red-400 p-2">Error al cargar categorías.</p>';
+          console.error("Error al cargar categorías:", err);
+      })
+      .getCategories();
+  }
+
+  // Carga las Formas de Pago
+  function loadPaymentMethods() {
+    google.script.run
+      .withSuccessHandler(options => populateOptions(paymentMethodGroup, options, 'Formas de pago'))
+      .withFailureHandler(err => {
+          paymentMethodGroup.innerHTML = '<p class="text-sm text-red-500 dark:text-red-400 p-2">Error al cargar formas de pago.</p>';
+          console.error("Error al cargar formas de pago:", err);
+      })
+      .getPaymentMethods();
+  }
+
+  // Carga las Descripciones Comunes (Sugerencias)
+  function loadCommonDescriptions() {
+    suggestionsContainer.innerHTML = '';
+    google.script.run
+      .withSuccessHandler(populateSuggestions)
+      .withFailureHandler(() => {})
+      .getCommonDescriptions();
+  }
+
+  // Rellena los botones de sugerencias
+  function populateSuggestions(descriptions) {
+    suggestionsContainer.innerHTML = '';
+    (descriptions || []).slice(0, 10).forEach(desc => {
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.textContent = desc;
+      btn.dataset.value = desc;
+      btn.className = 'suggestion-btn';
+      suggestionsContainer.appendChild(btn);
+    });
+  }
+
+  // Handler de éxito del servidor (resultado)
+  function onSuccess(result) {
+    if (result.success) showSuccess(result.message);
+    else { 
+      hideLoading(); 
+      showError(result.message || 'Error al registrar.');
+      console.error('Error del servidor:', result.message);
+    }
+  }
+
+  // Handler de error del servidor
+  function onError(err) {
+    hideLoading();
+    showError('Error de conexión con Google Sheets.');
+    console.error('Error de conexión:', err);
+  }
+
+  // Event Listeners
+  form.addEventListener('submit', handleSubmit);
+  categoryGroup.addEventListener('click', handleSelection);
+  paymentMethodGroup.addEventListener('click', handleSelection);
+  movementTypeGroup.addEventListener('click', handleSelection);
+  suggestionsContainer.addEventListener('click', handleSuggestion);
+  themeToggle.addEventListener('click', toggleTheme);
+
+  // Inicialización al cargar la ventana
+  window.onload = () => {
+    // 1. Aplicar Tema (prioridad: localStorage, luego default 'light')
+    const savedTheme = localStorage.getItem('theme') || 'light';
+    applyTheme(savedTheme);
+
+    // 2. Inicializar Formulario
+    hideLoading();
+    loadCategories(); 
+    loadPaymentMethods(); 
+    loadCommonDescriptions();
+    
+    // 3. Foco en el Monto para velocidad
+    amountInput.focus();
+  };
+</script>
+</body>
+</html>
