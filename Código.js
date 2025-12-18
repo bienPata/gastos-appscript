@@ -1,169 +1,117 @@
-/**
- * Web App: Registro de Gastos Móvil
- * - Funciona en móvil sin zoom
- * - Registra gastos sin redirección
- * - Botones horizontales, selección visible
- */
-
-// --- FUNCIÓN AUXILIAR PARA CONTAR USO ---
-function getUsageCounts(columnIndex) {
-    const ss = SpreadsheetApp.getActiveSpreadsheet();
-    // Hoja donde se buscan los movimientos
-    const logSheet = ss.getSheetByName('Registros') || ss.getSheets()[0];
-    const counts = {};
-
-    if (!logSheet || logSheet.getLastRow() < 2) {
-        return counts;
-    }
-
-    // Obtener todos los valores de la columna (omitiendo el encabezado)
-    const dataRange = logSheet.getRange(2, columnIndex, logSheet.getLastRow() - 1, 1);
-    const values = dataRange.getValues().flat().filter(Boolean);
-
-    values.forEach(item => {
-        const key = String(item).trim();
-        counts[key] = (counts[key] || 0) + 1;
-    });
-
-    return counts;
-}
-// ------------------------------------------
-
 function doGet() {
-    return HtmlService.createHtmlOutputFromFile('Sidebar')
-        .setTitle('Registrar Gasto')
-        .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL)
-        .addMetaTag('viewport', 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no');
+  return HtmlService.createHtmlOutputFromFile('index')
+    .setTitle('Finanzas Pro')
+    .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL)
+    .addMetaTag('viewport', 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no');
 }
 
 function recordExpense(formData) {
-    try {
-        const ss = SpreadsheetApp.getActiveSpreadsheet();
-        const sheet = ss.getSheetByName('Registros') || ss.getSheets()[0];
-        
-        if (!sheet) throw new Error("Hoja 'Gastos' no encontrada.");
+  try {
+    const ss = SpreadsheetApp.getActiveSpreadsheet();
+    const sheet = ss.getSheetByName('Registros') || ss.getSheets()[0];
+    sheet.appendRow([
+      new Date(),
+      parseFloat(formData.amount),
+      formData.description,
+      formData.movementType,
+      formData.expenseType,
+      formData.paymentMethod
+    ]);
+    return { success: true, message: `$${formData.amount} registrado.` };
+  } catch (e) {
+    return { success: false, message: e.message };
+  }
+}
 
-        const rowData = [
-            new Date(), // Columna A
-            parseFloat(formData.amount), // Columna B
-            formData.description, // Columna C
-            formData.movementType, // Columna D
-            formData.expenseType, // Columna E (Categoría)
-            formData.paymentMethod // Columna F (Forma de Pago)
-        ];
-        
-        sheet.appendRow(rowData);
-        return { success: true, message: `€${formData.amount} registrado.` };
+function getAppData() {
+  try {
+    const ss = SpreadsheetApp.getActiveSpreadsheet();
+    const sheet = ss.getSheetByName('Registros');
+    if (!sheet || sheet.getLastRow() < 2) return { records: [] };
 
-    } catch (e) {
-        Logger.log("Error: " + e.toString());
-        return { success: false, message: e.message || "Error al registrar." };
-    }
+    const data = sheet.getRange(2, 1, sheet.getLastRow() - 1, 6).getValues();
+    return {
+      records: data.map((r, i) => ({
+        id: i + 2,
+        fecha: Utilities.formatDate(r[0], "GMT-6", "dd/MM/yyyy"),
+        monto: parseFloat(r[1]),
+        desc: r[2],
+        tipo: r[3],
+        cat: r[4],
+        pago: r[5],
+        fechaRaw: r[0].getTime()
+      })).reverse()
+    };
+  } catch (e) {
+    return { records: [], error: e.toString() };
+  }
+}
+
+function getUsageCounts(columnIndex) {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  const sheet = ss.getSheetByName('Registros') || ss.getSheets()[0];
+  const counts = {};
+  if (!sheet || sheet.getLastRow() < 2) return counts;
+
+  sheet.getRange(2, columnIndex, sheet.getLastRow() - 1, 1)
+    .getValues().flat().filter(Boolean)
+    .forEach(item => {
+      const key = String(item).trim();
+      counts[key] = (counts[key] || 0) + 1;
+    });
+  return counts;
+}
+
+function getCategories() {
+  try {
+    const ss = SpreadsheetApp.getActiveSpreadsheet();
+    const configSheet = ss.getSheetByName('Configuracion');
+    if (!configSheet) return ["Comida", "Transporte", "Hogar"];
+
+    const categories = configSheet.getRange(2, 1, configSheet.getLastRow() - 1, 1)
+      .getValues().flat().filter(Boolean).map(c => String(c).trim());
+    const usage = getUsageCounts(5);
+    return categories.sort((a, b) => (usage[b] || 0) - (usage[a] || 0));
+  } catch (e) {
+    return [];
+  }
+}
+
+function getPaymentMethods() {
+  try {
+    const ss = SpreadsheetApp.getActiveSpreadsheet();
+    const configSheet = ss.getSheetByName('Configuracion');
+    if (!configSheet) return ["Efectivo", "Tarjeta"];
+
+    const methods = configSheet.getRange(2, 2, configSheet.getLastRow() - 1, 1)
+      .getValues().flat().filter(Boolean).map(p => String(p).trim());
+    const usage = getUsageCounts(6);
+    return methods.sort((a, b) => (usage[b] || 0) - (usage[a] || 0));
+  } catch (e) {
+    return [];
+  }
 }
 
 function getCommonDescriptions() {
-    try {
-        const ss = SpreadsheetApp.getActiveSpreadsheet();
-        const sheet = ss.getSheetByName('Registros') || ss.getSheets()[0]; 
-        
-        if (!sheet || sheet.getLastRow() < 2) return [];
+  try {
+    const ss = SpreadsheetApp.getActiveSpreadsheet();
+    const sheet = ss.getSheetByName('Registros');
+    if (!sheet || sheet.getLastRow() < 2) return [];
 
-        const DESCRIPTION_COLUMN = 3; // Columna C
-        const range = sheet.getRange(2, DESCRIPTION_COLUMN, sheet.getLastRow() - 1, 1);
-        const descriptions = range.getValues().flat().filter(Boolean);
-        const counts = descriptions.reduce((acc, desc) => {
-            const key = String(desc).trim();
-            if (key) acc[key] = (acc[key] || 0) + 1;
-            return acc;
-        }, {});
-        
-        return Object.keys(counts)
-            .sort((a, b) => counts[b] - counts[a])
-            .slice(0, 10);
-    } catch (e) {
-        Logger.log("Error descripciones: " + e.toString());
-        return [];
-    }
+    const counts = sheet.getRange(2, 3, sheet.getLastRow() - 1, 1)
+      .getValues().flat().filter(Boolean)
+      .reduce((acc, desc) => {
+        const key = String(desc).trim();
+        acc[key] = (acc[key] || 0) + 1;
+        return acc;
+      }, {});
+
+    return Object.keys(counts).sort((a, b) => counts[b] - counts[a]).slice(0, 10);
+  } catch (e) {
+    return [];
+  }
 }
 
-/**
- * Obtiene las categorías y las ordena por frecuencia de uso.
- */
-function getCategories() {
-    try {
-        const ss = SpreadsheetApp.getActiveSpreadsheet();
-        const configSheet = ss.getSheetByName('Configuracion');
-        if (!configSheet) throw new Error("Hoja 'Configuracion' no encontrada.");
-
-        const lastRow = configSheet.getLastRow();
-        if (lastRow < 2) return [];
-
-        // 1. Obtener todas las categorías únicas (Columna A de 'Configuracion')
-        const dataRange = configSheet.getRange(2, 1, lastRow - 1, 1);
-        let categories = dataRange.getValues().flat().filter(Boolean).map(c => String(c).trim());
-
-        // 2. Contar la frecuencia de uso en la hoja "Gastos" (Columna E, índice 5)
-        const usageCounts = getUsageCounts(5); 
-
-        // 3. ORDENAR LA LISTA
-        categories.sort((a, b) => {
-            const countA = usageCounts[a] || 0;
-            const countB = usageCounts[b] || 0;
-            return countB - countA; // Orden descendente por conteo (más usadas primero)
-        });
-
-        // 4. DEVOLVER LA LISTA ORDENADA (Este paso asegura que se devuelva el array modificado)
-        return categories; 
-    } catch (e) {
-        Logger.log("Error al obtener categorías: " + e.toString());
-        return [];
-    }
-}
-
-/**
- * Obtiene las formas de pago y las ordena por frecuencia de uso.
- */
-function getPaymentMethods() {
-    try {
-        const ss = SpreadsheetApp.getActiveSpreadsheet();
-        const configSheet = ss.getSheetByName('Configuracion');
-        if (!configSheet) throw new Error("Hoja 'Configuracion' no encontrada.");
-
-        const lastRow = configSheet.getLastRow();
-        if (lastRow < 2) return [];
-
-        // 1. Obtener todas las formas de pago únicas (Columna B de 'Configuracion')
-        const dataRange = configSheet.getRange(2, 2, lastRow - 1, 1);
-        let paymentMethods = dataRange.getValues().flat().filter(Boolean).map(p => String(p).trim());
-
-        // 2. Contar la frecuencia de uso en la hoja "Gastos" (Columna F, índice 6)
-        const usageCounts = getUsageCounts(6); 
-
-        // 3. ORDENAR LA LISTA
-        paymentMethods.sort((a, b) => {
-            const countA = usageCounts[a] || 0;
-            const countB = usageCounts[b] || 0;
-            return countB - countA; // Orden descendente por conteo (más usadas primero)
-        });
-
-        // 4. DEVOLVER LA LISTA ORDENADA (Este paso asegura que se devuelva el array modificado)
-        return paymentMethods;
-    } catch (e) {
-        Logger.log("Error al obtener formas de pago: " + e.toString());
-        return [];
-    }
-}
-
-function onOpen() {
-    SpreadsheetApp.getUi()
-        .createMenu('Gastos')
-        .addItem('Abrir Formulario', 'showExpenseFormDialog')
-        .addToUi();
-}
-
-function showExpenseFormDialog() {
-    const html = HtmlService.createHtmlOutputFromFile('Sidebar')
-        .setWidth(400)
-        .setHeight(600);
-    SpreadsheetApp.getUi().showModalDialog(html, 'Registrar Gasto');
+function getServiceUrl() {
+  return ScriptApp.getService().getUrl();
 }
