@@ -1,255 +1,255 @@
-# Finanzas Pro - Registro de Gastos con Google Sheets
+# Finanzas Pro - Personal Expense Tracker
 
-Una aplicación web móvil para registrar y visualizar gastos personales, construida con Google Apps Script y Google Sheets como base de datos.
+A mobile-first web app to track and visualize personal expenses, built with Google Apps Script using Google Sheets as a database.
 
-![Vista previa](https://img.shields.io/badge/Platform-Google%20Sheets-34A853?logo=googlesheets&logoColor=white)
+![Platform](https://img.shields.io/badge/Platform-Google%20Sheets-34A853?logo=googlesheets&logoColor=white)
 ![License](https://img.shields.io/badge/License-MIT-blue)
 
-## Características
+## Features
 
-- **Registro rápido** de gastos e ingresos desde el móvil
-- **Categorías y métodos de pago** personalizables
-- **Historial** con filtros por fecha
-- **Estadísticas** con gráfico de gastos por categoría
-- **Modo oscuro/claro** con persistencia
-- **Sugerencias inteligentes** basadas en descripciones frecuentes
-- **100% gratis** - usa tu propia cuenta de Google
-
----
-
-## Guía de Usuario
-
-### Paso 1: Copiar la Plantilla
-
-1. Abre la plantilla original:
-   **[Abrir Plantilla](https://docs.google.com/spreadsheets/d/1KNayGWB7jz5z_GGd9TvdqYkzPfHTZlnCwBebvFPI22w/copy)**
-
-2. Se abrirá un diálogo pidiendo hacer una copia. Haz clic en **"Hacer una copia"**
-
-3. La copia se guardará en tu Google Drive con el nombre "Copia de Finanzas Pro"
-
-> **Nota:** Al hacer clic en el enlace con `/copy` al final, Google te pedirá automáticamente crear tu propia copia.
-
-### Paso 2: Configurar la Web App
-
-1. En tu copia de la hoja, ve a **Extensiones → Apps Script**
-
-2. En el editor de Apps Script, haz clic en **Implementar → Nueva implementación**
-
-3. Configura la implementación:
-   - **Tipo:** Selecciona "Aplicación web"
-   - **Descripción:** (opcional) ej: "Mi app de gastos"
-   - **Ejecutar como:** "Yo mismo"
-   - **Quién tiene acceso:** "Cualquier persona" (para acceder desde el móvil)
-
-4. Haz clic en **Implementar**
-
-5. **Autoriza los permisos:**
-   - Haz clic en "Autorizar acceso"
-   - Selecciona tu cuenta de Google
-   - Haz clic en "Avanzado" → "Ir a Finanzas Pro (no seguro)"
-   - Haz clic en "Permitir"
-
-6. **¡Copia tu URL!** Esta es la dirección de tu aplicación personal
-
-### Paso 3: Acceder desde el Móvil
-
-1. Copia la URL de tu Web App
-2. En tu móvil, pega la URL en el navegador
-3. **Recomendado:** Añade la página a tu pantalla de inicio:
-   - **iPhone:** Safari → Compartir → "Añadir a pantalla de inicio"
-   - **Android:** Chrome → Menú (⋮) → "Añadir a pantalla de inicio"
+- **Quick logging** of expenses and income from mobile
+- **Customizable** categories and payment methods
+- **History** with date filters
+- **Statistics** with spending chart by category
+- **Dark/Light mode** with persistence
+- **Smart suggestions** based on frequent descriptions
+- **100% free** - uses your own Google account
 
 ---
 
-## Estructura de la Hoja de Cálculo
+## User Guide
 
-### Hoja "Registros"
-Donde se guardan todos los movimientos:
+### Step 1: Copy the Template
 
-| Columna | Contenido |
-|---------|-----------|
-| A | Fecha/Hora |
-| B | Monto |
-| C | Descripción |
-| D | Tipo (Compra/Ingreso) |
-| E | Categoría |
-| F | Método de pago |
+1. Open the original template:
+   **[Open Template](https://docs.google.com/spreadsheets/d/1KNayGWB7jz5z_GGd9TvdqYkzPfHTZlnCwBebvFPI22w/copy)**
 
-### Hoja "Configuracion"
-Define las opciones disponibles:
+2. A dialog will appear asking to make a copy. Click **"Make a copy"**
 
-| Columna A | Columna B |
-|-----------|-----------|
-| Categorías | Métodos de pago |
-| Comida | Efectivo |
-| Transporte | Tarjeta débito |
-| Hogar | Tarjeta crédito |
+3. The copy will be saved to your Google Drive
+
+> **Note:** The `/copy` link automatically prompts you to create your own copy.
+
+### Step 2: Deploy the Web App
+
+1. In your spreadsheet copy, go to **Extensions → Apps Script**
+
+2. In the Apps Script editor, click **Deploy → New deployment**
+
+3. Configure the deployment:
+   - **Type:** Select "Web app"
+   - **Description:** (optional) e.g., "My expense tracker"
+   - **Execute as:** "Me"
+   - **Who has access:** "Anyone" (to access from mobile)
+
+4. Click **Deploy**
+
+5. **Authorize permissions:**
+   - Click "Authorize access"
+   - Select your Google account
+   - Click "Advanced" → "Go to Finanzas Pro (unsafe)"
+   - Click "Allow"
+
+6. **Copy your URL!** This is your personal app address
+
+### Step 3: Access from Mobile
+
+1. Copy your Web App URL
+2. On your phone, paste the URL in your browser
+3. **Recommended:** Add to home screen:
+   - **iPhone:** Safari → Share → "Add to Home Screen"
+   - **Android:** Chrome → Menu (⋮) → "Add to Home Screen"
+
+---
+
+## Spreadsheet Structure
+
+### "Registros" Sheet
+Where all transactions are stored:
+
+| Column | Content |
+|--------|---------|
+| A | Date/Time |
+| B | Amount |
+| C | Description |
+| D | Type (Compra/Ingreso) |
+| E | Category |
+| F | Payment method |
+
+### "Configuracion" Sheet
+Defines available options:
+
+| Column A | Column B |
+|----------|----------|
+| Categories | Payment methods |
+| Food | Cash |
+| Transport | Debit card |
+| Home | Credit card |
 | ... | ... |
 
-> **Personaliza** añadiendo o eliminando filas en esta hoja para adaptar las categorías y métodos de pago a tus necesidades.
+> **Customize** by adding or removing rows to adapt categories and payment methods to your needs.
 
 ---
 
-## Uso de la Aplicación
+## Using the App
 
-### Registrar un Gasto/Ingreso
-1. Ingresa el monto
-2. Selecciona **Gasto** o **Ingreso**
-3. Escribe una descripción (o selecciona una sugerencia)
-4. Elige categoría y método de pago
-5. Toca **Registrar**
+### Log an Expense/Income
+1. Enter the amount
+2. Select **Gasto** (expense) or **Ingreso** (income)
+3. Type a description (or select a suggestion)
+4. Choose category and payment method
+5. Tap **Registrar**
 
-### Ver Historial
-1. Toca **HISTORIAL** en la barra inferior
-2. Ajusta las fechas de inicio y fin
-3. Toca el botón de recargar (↻)
+### View History
+1. Tap **HISTORIAL** in the bottom bar
+2. Adjust start and end dates
+3. Tap the reload button (↻)
 
-### Ver Estadísticas
-1. Toca **STATS** en la barra inferior
-2. Ajusta el rango de fechas
-3. Visualiza el resumen de ingresos/gastos y el gráfico por categoría
-
----
-
-## Solución de Problemas
-
-### "No se cargaron las categorías"
-- Verifica que la hoja "Configuracion" exista y tenga datos desde la fila 2
-
-### "Error de conexión con Google Sheets"
-- Verifica tu conexión a internet
-- Intenta recargar la página
-
-### Los cambios no aparecen en la app
-- Si modificaste el código, necesitas crear una **nueva implementación**
-- Ve a Apps Script → Implementar → Administrar implementaciones → Nueva versión
+### View Statistics
+1. Tap **STATS** in the bottom bar
+2. Adjust the date range
+3. View income/expense summary and category chart
 
 ---
 
-## Para Desarrolladores
+## Troubleshooting
 
-### Requisitos
-- Cuenta de Google
-- Conocimientos básicos de JavaScript
-- (Opcional) [clasp](https://github.com/google/clasp) para desarrollo local
+### "Categories didn't load"
+- Verify the "Configuracion" sheet exists and has data starting from row 2
 
-### Estructura del Proyecto
+### "Connection error with Google Sheets"
+- Check your internet connection
+- Try reloading the page
+
+### Changes don't appear in the app
+- If you modified the code, you need to create a **new deployment**
+- Go to Apps Script → Deploy → Manage deployments → New version
+
+---
+
+## For Developers
+
+### Requirements
+- Google account
+- Basic JavaScript knowledge
+- (Optional) [clasp](https://github.com/google/clasp) for local development
+
+### Project Structure
 
 ```
 gastos-appscript/
-├── Código.js      # Backend - Google Apps Script
-├── index.html     # Frontend - HTML/CSS/JS
+├── Código.js       # Backend - Google Apps Script
+├── index.html      # Frontend - HTML/CSS/JS
 ├── appsscript.json
 └── README.md
 ```
 
-### Desarrollo Local con clasp
+### Local Development with clasp
 
-1. **Instalar clasp globalmente:**
+1. **Install clasp globally:**
 ```bash
 npm install -g @google/clasp
 ```
 
-2. **Iniciar sesión:**
+2. **Login:**
 ```bash
 clasp login
 ```
 
-3. **Clonar el proyecto:**
+3. **Clone the project:**
 ```bash
 clasp clone <SCRIPT_ID>
 ```
-> El Script ID está en Apps Script → Configuración del proyecto
+> Script ID is in Apps Script → Project Settings
 
-4. **Subir cambios:**
+4. **Push changes:**
 ```bash
 clasp push
 ```
 
-5. **Abrir en el navegador:**
+5. **Open in browser:**
 ```bash
 clasp open
 ```
 
-### Funciones del Backend (Código.js)
+### Backend Functions (Código.js)
 
-| Función | Descripción |
-|---------|-------------|
-| `doGet()` | Punto de entrada de la Web App |
-| `recordExpense(formData)` | Registra un nuevo movimiento |
-| `getAppData()` | Obtiene todos los registros |
-| `getCategories()` | Obtiene categorías ordenadas por uso |
-| `getPaymentMethods()` | Obtiene métodos de pago ordenados por uso |
-| `getCommonDescriptions()` | Obtiene las 10 descripciones más usadas |
-| `getUsageCounts(columnIndex)` | Helper para contar frecuencia de uso |
+| Function | Description |
+|----------|-------------|
+| `doGet()` | Web App entry point |
+| `recordExpense(formData)` | Records a new transaction |
+| `getAppData()` | Gets all records |
+| `getCategories()` | Gets categories sorted by usage |
+| `getPaymentMethods()` | Gets payment methods sorted by usage |
+| `getCommonDescriptions()` | Gets top 10 most used descriptions |
+| `getUsageCounts(columnIndex)` | Helper to count usage frequency |
 
-### Contribuir al Proyecto
+### Contributing
 
-1. **Fork** este repositorio
+1. **Fork** this repository
 
-2. **Clona** tu fork:
+2. **Clone** your fork:
 ```bash
-git clone https://github.com/TU_USUARIO/gastos-appscript.git
+git clone https://github.com/YOUR_USERNAME/gastos-appscript.git
 cd gastos-appscript
 ```
 
-3. **Crea una rama** para tu feature:
+3. **Create a branch** for your feature:
 ```bash
-git checkout -b feature/nueva-funcionalidad
+git checkout -b feature/new-feature
 ```
 
-4. **Desarrolla y prueba** tus cambios:
-   - Usa `clasp push` para subir al script de prueba
-   - Crea una nueva implementación de prueba
-   - Verifica que funcione en móvil y escritorio
+4. **Develop and test** your changes:
+   - Use `clasp push` to upload to test script
+   - Create a test deployment
+   - Verify it works on mobile and desktop
 
-5. **Commit** con mensajes descriptivos:
+5. **Commit** with descriptive messages:
 ```bash
 git add .
-git commit -m "feat: añadir exportación a CSV"
+git commit -m "feat: add CSV export"
 ```
 
-6. **Push** a tu fork:
+6. **Push** to your fork:
 ```bash
-git push origin feature/nueva-funcionalidad
+git push origin feature/new-feature
 ```
 
-7. **Abre un Pull Request** describiendo:
-   - Qué problema resuelve
-   - Cómo probarlo
-   - Screenshots si hay cambios visuales
+7. **Open a Pull Request** describing:
+   - What problem it solves
+   - How to test it
+   - Screenshots if there are visual changes
 
-### Guía de Estilo
+### Code Style
 
-- **Sin comentarios innecesarios** - el código debe ser autoexplicativo
-- **Nombres descriptivos** para funciones y variables
-- **Funciones pequeñas** con una sola responsabilidad
-- **ES6+** - usa `const`, `let`, arrow functions, template literals
-- **Consistencia** - sigue el estilo existente del código
+- **No unnecessary comments** - code should be self-explanatory
+- **Descriptive names** for functions and variables
+- **Small functions** with single responsibility
+- **ES6+** - use `const`, `let`, arrow functions, template literals
+- **Consistency** - follow existing code style
 
-### Actualizar una Implementación Existente
+### Updating an Existing Deployment
 
-Cuando se mezcle un PR con mejoras:
+When a PR with improvements is merged:
 
-1. Ve a tu copia de Google Sheets
-2. **Extensiones → Apps Script**
-3. Reemplaza el contenido de `Código.gs` e `index.html` con el código actualizado
-4. **Implementar → Administrar implementaciones**
-5. Edita la implementación existente o crea una nueva
-6. Si creas nueva, actualiza la URL en tu móvil
-
----
-
-## Licencia
-
-MIT License - Úsalo, modifícalo y compártelo libremente.
+1. Go to your Google Sheets copy
+2. **Extensions → Apps Script**
+3. Replace contents of `Código.gs` and `index.html` with updated code
+4. **Deploy → Manage deployments**
+5. Edit existing deployment or create new one
+6. If new, update the URL on your phone
 
 ---
 
-## Créditos
+## License
 
-Desarrollado con ❤️ usando:
+MIT License - Use, modify, and share freely.
+
+---
+
+## Credits
+
+Built with ❤️ using:
 - [Google Apps Script](https://developers.google.com/apps-script)
 - [Tailwind CSS](https://tailwindcss.com)
 - [Chart.js](https://www.chartjs.org)
