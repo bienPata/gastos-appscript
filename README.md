@@ -5,6 +5,8 @@ A mobile-first web app to track and visualize personal expenses, built with Goog
 ![Platform](https://img.shields.io/badge/Platform-Google%20Sheets-34A853?logo=googlesheets&logoColor=white)
 ![License](https://img.shields.io/badge/License-MIT-blue)
 
+🌐 **[Leer en Español](README.es.md)**
+
 ## Features
 
 - **Quick logging** of expenses and income from mobile
@@ -12,6 +14,7 @@ A mobile-first web app to track and visualize personal expenses, built with Goog
 - **History** with date filters
 - **Statistics** with spending chart by category
 - **Dark/Light mode** with persistence
+- **Multi-language** support (English/Spanish)
 - **Smart suggestions** based on frequent descriptions
 - **100% free** - uses your own Google account
 
@@ -95,13 +98,13 @@ Defines available options:
 
 ### Log an Expense/Income
 1. Enter the amount
-2. Select **Gasto** (expense) or **Ingreso** (income)
+2. Select **Expense** or **Income**
 3. Type a description (or select a suggestion)
 4. Choose category and payment method
-5. Tap **Registrar**
+5. Tap **Register**
 
 ### View History
-1. Tap **HISTORIAL** in the bottom bar
+1. Tap **HISTORY** in the bottom bar
 2. Adjust start and end dates
 3. Tap the reload button (↻)
 
@@ -109,6 +112,12 @@ Defines available options:
 1. Tap **STATS** in the bottom bar
 2. Adjust the date range
 3. View income/expense summary and category chart
+
+### Change Language
+- Tap the **EN/ES** button in the header to switch between English and Spanish
+
+### Toggle Dark Mode
+- Tap the sun/moon icon in the header
 
 ---
 
@@ -141,7 +150,8 @@ gastos-appscript/
 ├── Código.js       # Backend - Google Apps Script
 ├── index.html      # Frontend - HTML/CSS/JS
 ├── appsscript.json
-└── README.md
+├── README.md       # English documentation
+└── README.es.md    # Spanish documentation
 ```
 
 ### Local Development with clasp
