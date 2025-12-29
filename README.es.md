@@ -10,12 +10,15 @@ Una aplicación web móvil para registrar y visualizar gastos personales, constr
 ## Características
 
 - **Registro rápido** de gastos e ingresos desde el móvil
-- **Categorías y métodos de pago** personalizables
-- **Historial** con filtros por fecha
+- **Categorías y métodos de pago** personalizables (agregar/eliminar en configuración)
+- **Historial** con filtros por fecha, categoría y descripción
+- **Editar y eliminar** registros directamente desde el historial
 - **Estadísticas** con gráfico de gastos por categoría
 - **Modo oscuro/claro** con persistencia
 - **Multi-idioma** (Inglés/Español)
 - **Sugerencias inteligentes** basadas en descripciones frecuentes
+- **Selectores flexibles** - carrusel o desplegable con búsqueda
+- **Actualizaciones automáticas** - arquitectura basada en librería
 - **100% gratis** - usa tu propia cuenta de Google
 
 ---
@@ -80,17 +83,17 @@ Donde se guardan todas las transacciones:
 | F | Método de pago |
 
 ### Hoja "Configuracion"
-Define las opciones disponibles:
+Almacena categorías, métodos de pago y configuración:
 
-| Columna A | Columna B |
-|-----------|-----------|
-| Categorías | Métodos de pago |
-| Comida | Efectivo |
-| Transporte | Tarjeta débito |
-| Hogar | Tarjeta crédito |
-| ... | ... |
+| Columna A | Columna B | Columna D | Columna E |
+|-----------|-----------|-----------|-----------|
+| Categorías | Métodos de pago | Configuración | Valor |
+| Comida | Efectivo | lang | es |
+| Transporte | Tarjeta débito | theme | light |
+| Hogar | Tarjeta crédito | selectorStyle | carousel |
+| ... | ... | showSuggestions | true |
 
-> **Personaliza** añadiendo o eliminando filas para adaptar categorías y métodos de pago a tus necesidades.
+> **Nota:** Puedes gestionar categorías y métodos de pago directamente desde el menú de configuración de la app.
 
 ---
 
@@ -106,15 +109,26 @@ Define las opciones disponibles:
 ### Ver Historial
 1. Toca **HISTORIAL** en la barra inferior
 2. Ajusta las fechas de inicio y fin
-3. Toca el botón de recargar (↻)
+3. Usa los filtros de categoría y descripción para búsquedas refinadas
+4. Toca el botón de recargar (↻)
+
+### Editar o Eliminar un Registro
+1. En Historial, toca cualquier registro
+2. Modifica los campos según necesites
+3. Toca **Guardar** para actualizar o **Eliminar** para borrar
 
 ### Ver Estadísticas
 1. Toca **STATS** en la barra inferior
 2. Ajusta el rango de fechas
 3. Visualiza el resumen de ingresos/gastos y el gráfico por categoría
 
-### Cambiar Idioma
-- Toca el botón **EN/ES** en el encabezado para cambiar entre inglés y español
+### Configuración de la App
+Accede a configuración tocando el ícono de engranaje en el encabezado:
+- **Idioma:** Cambia entre Inglés y Español
+- **Estilo de Selector:** Elige carrusel o desplegable con búsqueda
+- **Mostrar Sugerencias:** Activa/desactiva sugerencias de descripción
+- **Categorías:** Agrega o elimina categorías de gastos
+- **Métodos de Pago:** Agrega o elimina opciones de pago
 
 ### Cambiar Modo Oscuro
 - Toca el ícono de sol/luna en el encabezado
@@ -131,28 +145,99 @@ Define las opciones disponibles:
 - Intenta recargar la página
 
 ### Los cambios no aparecen en la app
-- Si modificaste el código, necesitas crear una **nueva implementación**
-- Ve a Apps Script → Implementar → Administrar implementaciones → Nueva versión
+- Limpia la caché del navegador y recarga
+- La app se actualiza automáticamente desde GitHub, no necesitas reimplementar para cambios de UI
 
 ---
 
 ## Para Desarrolladores
 
-### Requisitos
-- Cuenta de Google
-- Conocimientos básicos de JavaScript
-- (Opcional) [clasp](https://github.com/google/clasp) para desarrollo local
+### Arquitectura
+
+Este proyecto usa una arquitectura de **Librería + Plantilla**:
+
+```
+┌─────────────────────────────────────────────────────────┐
+│                   Repositorio GitHub                     │
+│  ┌─────────────┐  ┌─────────────┐  ┌─────────────────┐  │
+│  │  Código.js  │  │ index.html  │  │   Template.js   │  │
+│  │ (Librería)  │  │ (Frontend)  │  │   (Plantilla)   │  │
+│  └─────────────┘  └─────────────┘  └─────────────────┘  │
+└─────────────────────────────────────────────────────────┘
+         │                  │
+         ▼                  ▼
+┌─────────────────┐    ┌─────────────────────────────────┐
+│ Librería Apps   │    │   Contenido Raw de GitHub       │
+│ Script          │◄───│  (Obtenido en tiempo de ejec.)  │
+│ (Publicada)     │    │                                 │
+└─────────────────┘    └─────────────────────────────────┘
+         │
+         ▼
+┌─────────────────────────────────────────────────────────┐
+│           Copia de Google Sheets del Usuario            │
+│  ┌─────────────┐  ┌─────────────┐  ┌─────────────────┐  │
+│  │ Template.js │  │  Registros  │  │  Configuracion  │  │
+│  │  (Wrapper)  │  │   (Datos)   │  │  (Ajustes)      │  │
+│  └─────────────┘  └─────────────┘  └─────────────────┘  │
+└─────────────────────────────────────────────────────────┘
+```
+
+**Beneficios:**
+- Los usuarios reciben actualizaciones automáticamente sin reimplementar
+- Las actualizaciones de HTML/CSS/JS son instantáneas (obtenidas de GitHub)
+- Las actualizaciones del backend solo requieren actualizar versión de librería
+- Los datos del usuario permanecen en su propia hoja de cálculo
 
 ### Estructura del Proyecto
 
 ```
 gastos-appscript/
-├── Código.js       # Backend - Google Apps Script
-├── index.html      # Frontend - HTML/CSS/JS
+├── Código.js       # Librería backend (publicar como Librería Apps Script)
+├── index.html      # Frontend (alojado en GitHub, obtenido en tiempo de ejecución)
+├── Template.js     # Wrapper delgado para el proyecto Apps Script del usuario
 ├── appsscript.json
 ├── README.md       # Documentación en inglés
 └── README.es.md    # Documentación en español
 ```
+
+### Configurando la Librería
+
+1. **Crear el Proyecto de Librería:**
+   - Crea un nuevo proyecto de Apps Script
+   - Copia el contenido de `Código.js`
+   - Actualiza `HTML_URL` con tu URL raw de GitHub
+   - Ve a Configuración del Proyecto → Copia el ID del Script
+
+2. **Publicar como Librería:**
+   - Implementar → Nueva implementación → Librería
+   - Anota el ID de implementación
+
+3. **Crear la Plantilla:**
+   - Crea una Google Sheet con hojas "Registros" y "Configuracion"
+   - Ve a Extensiones → Apps Script
+   - Agrega Librería: pega tu Script ID, identificador: `FinanzasProLib`
+   - Copia el contenido de `Template.js`
+   - Implementa como Web App
+
+### Funciones del Backend (Código.js)
+
+| Función | Descripción |
+|---------|-------------|
+| `doGet()` | Punto de entrada de la Web App |
+| `getConfig()` | Obtiene toda la configuración |
+| `saveConfig(config)` | Guarda la configuración |
+| `addCategory(category)` | Agrega una nueva categoría |
+| `removeCategory(category)` | Elimina una categoría |
+| `addPaymentMethod(method)` | Agrega un método de pago |
+| `removePaymentMethod(method)` | Elimina un método de pago |
+| `recordExpense(formData)` | Registra una nueva transacción |
+| `updateRecord(id, formData)` | Actualiza un registro existente |
+| `deleteRecord(id)` | Elimina un registro |
+| `getAppData()` | Obtiene todos los registros |
+| `getCategories()` | Obtiene categorías ordenadas por uso |
+| `getPaymentMethods()` | Obtiene métodos de pago ordenados por uso |
+| `getCommonDescriptions()` | Obtiene las 10 descripciones más usadas |
+| `getFilterOptions()` | Obtiene opciones de filtro disponibles |
 
 ### Desarrollo Local con clasp
 
@@ -182,18 +267,6 @@ clasp push
 clasp open
 ```
 
-### Funciones del Backend (Código.js)
-
-| Función | Descripción |
-|---------|-------------|
-| `doGet()` | Punto de entrada de la Web App |
-| `recordExpense(formData)` | Registra una nueva transacción |
-| `getAppData()` | Obtiene todos los registros |
-| `getCategories()` | Obtiene categorías ordenadas por uso |
-| `getPaymentMethods()` | Obtiene métodos de pago ordenados por uso |
-| `getCommonDescriptions()` | Obtiene las 10 descripciones más usadas |
-| `getUsageCounts(columnIndex)` | Helper para contar frecuencia de uso |
-
 ### Contribuir
 
 1. **Fork** este repositorio
@@ -210,9 +283,9 @@ git checkout -b feature/nueva-funcionalidad
 ```
 
 4. **Desarrolla y prueba** tus cambios:
-   - Usa `clasp push` para subir al script de prueba
-   - Crea una implementación de prueba
-   - Verifica que funcione en móvil y escritorio
+   - Para cambios de HTML/JS: push a GitHub y prueba (auto-obtenido)
+   - Para cambios de backend: usa `clasp push` al proyecto de librería
+   - Prueba en móvil y escritorio
 
 5. **Commit** con mensajes descriptivos:
 ```bash
@@ -237,17 +310,6 @@ git push origin feature/nueva-funcionalidad
 - **Funciones pequeñas** con una sola responsabilidad
 - **ES6+** - usa `const`, `let`, arrow functions, template literals
 - **Consistencia** - sigue el estilo existente del código
-
-### Actualizar una Implementación Existente
-
-Cuando se mezcle un PR con mejoras:
-
-1. Ve a tu copia de Google Sheets
-2. **Extensiones → Apps Script**
-3. Reemplaza el contenido de `Código.gs` e `index.html` con el código actualizado
-4. **Implementar → Administrar implementaciones**
-5. Edita la implementación existente o crea una nueva
-6. Si creas nueva, actualiza la URL en tu móvil
 
 ---
 
