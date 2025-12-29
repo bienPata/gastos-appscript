@@ -6,9 +6,9 @@ function getHtmlContent() {
     if (response.getResponseCode() === 200) {
       return response.getContentText();
     }
-    return HtmlService.createHtmlOutputFromFile('index').getContent();
+    throw new Error('Failed to fetch HTML from GitHub');
   } catch (e) {
-    return HtmlService.createHtmlOutputFromFile('index').getContent();
+    return '<html><body><h1>Error loading app</h1><p>Could not fetch HTML from GitHub. Please check the URL configuration.</p><p>Error: ' + e.message + '</p></body></html>';
   }
 }
 
