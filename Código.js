@@ -1,4 +1,4 @@
-const HTML_URL = 'https://raw.githubusercontent.com/YOUR_USER/gastos-appscript/main/index.html';
+const HTML_URL = 'https://raw.githubusercontent.com/bienPata/gastos-appscript/refs/heads/main/index.html';
 
 function getHtmlContent() {
   try {
